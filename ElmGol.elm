@@ -338,3 +338,10 @@ randomize grid gs sd n =
       randIndexes = List.take scaledN <| shuffle indexes sd
       newGrid = initialize (gs*gs) (always Dead)
   in List.foldr (\p acc -> set p Alive acc) newGrid randIndexes 
+
+randomize2 : Array Cell -> Int -> Int -> Int -> Array Cell
+randomize2 grid gs sd n = 
+  let floatGen = Random.float 0.0 1.0
+      lifeGen = Random.map (\b -> if (b < toFloat n/100) then Alive else Dead) floatGen
+      listGen = Random.list (gs*gs) lifeGen
+  in fst (Random.step listGen (initialSeed sd)) |> fromList

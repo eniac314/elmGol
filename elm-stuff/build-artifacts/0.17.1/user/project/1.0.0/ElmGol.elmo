@@ -217,6 +217,25 @@ var _user$project$ElmGol$randomize = F4(
 			newGrid,
 			randIndexes);
 	});
+var _user$project$ElmGol$randomize2 = F4(
+	function (grid, gs, sd, n) {
+		var floatGen = A2(_elm_lang$core$Random$float, 0.0, 1.0);
+		var lifeGen = A2(
+			_elm_lang$core$Random$map,
+			function (b) {
+				return (_elm_lang$core$Native_Utils.cmp(
+					b,
+					_elm_lang$core$Basics$toFloat(n) / 100) < 0) ? _user$project$ElmGol$Alive : _user$project$ElmGol$Dead;
+			},
+			floatGen);
+		var listGen = A2(_elm_lang$core$Random$list, gs * gs, lifeGen);
+		return _elm_lang$core$Array$fromList(
+			_elm_lang$core$Basics$fst(
+				A2(
+					_elm_lang$core$Random$step,
+					listGen,
+					_elm_lang$core$Random$initialSeed(sd))));
+	});
 var _user$project$ElmGol$Random = {ctor: 'Random'};
 var _user$project$ElmGol$SetSeed = function (a) {
 	return {ctor: 'SetSeed', _0: a};
