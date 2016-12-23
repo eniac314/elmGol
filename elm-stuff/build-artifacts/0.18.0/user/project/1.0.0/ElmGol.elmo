@@ -1,0 +1,940 @@
+var _user$project$ElmGol$makeRange = function (n) {
+	var helper = F2(
+		function (acc, n) {
+			helper:
+			while (true) {
+				if (_elm_lang$core$Native_Utils.eq(n, 0)) {
+					return {ctor: '::', _0: n, _1: acc};
+				} else {
+					var _v0 = {ctor: '::', _0: n, _1: acc},
+						_v1 = n - 1;
+					acc = _v0;
+					n = _v1;
+					continue helper;
+				}
+			}
+		});
+	return A2(
+		helper,
+		{ctor: '[]'},
+		n - 1);
+};
+var _user$project$ElmGol$zip = F2(
+	function (xs, ys) {
+		var _p0 = {ctor: '_Tuple2', _0: xs, _1: ys};
+		if ((_p0._0.ctor === '::') && (_p0._1.ctor === '::')) {
+			return {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: _p0._0._0, _1: _p0._1._0},
+				_1: A2(_user$project$ElmGol$zip, _p0._0._1, _p0._1._1)
+			};
+		} else {
+			return {ctor: '[]'};
+		}
+	});
+var _user$project$ElmGol$shuffle = F2(
+	function (xs, seed) {
+		var l = _elm_lang$core$List$length(xs);
+		var g = A2(_elm_lang$core$Random$int, 0, 10 * l);
+		var indexesGen = A2(_elm_lang$core$Random$list, l, g);
+		var indexList = _elm_lang$core$Tuple$first(
+			A2(
+				_elm_lang$core$Random$step,
+				indexesGen,
+				_elm_lang$core$Random$initialSeed(seed)));
+		var sortedList = A2(
+			_elm_lang$core$List$sortWith,
+			F2(
+				function (_p2, _p1) {
+					var _p3 = _p2;
+					var _p4 = _p1;
+					return A2(_elm_lang$core$Basics$compare, _p3._0, _p4._0);
+				}),
+			A2(_user$project$ElmGol$zip, indexList, xs));
+		return A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$second, sortedList);
+	});
+var _user$project$ElmGol$style_ = function (text) {
+	return A3(
+		_elm_lang$html$Html$node,
+		'style',
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html_Attributes$property,
+				'textContent',
+				_elm_lang$core$Json_Encode$string(text)),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html_Attributes$property,
+					'type',
+					_elm_lang$core$Json_Encode$string('text/css')),
+				_1: {ctor: '[]'}
+			}
+		},
+		{ctor: '[]'});
+};
+var _user$project$ElmGol$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {running: a, generation: b, grid: c, gridSize: d, buffer: e, density: f, initSeed: g, error: h};
+	});
+var _user$project$ElmGol$Dead = {ctor: 'Dead'};
+var _user$project$ElmGol$init = function (gs) {
+	return A8(
+		_user$project$ElmGol$Model,
+		false,
+		0,
+		A2(_elm_lang$core$Array$repeat, gs * gs, _user$project$ElmGol$Dead),
+		gs,
+		'',
+		'0',
+		_elm_lang$core$Maybe$Nothing,
+		_elm_lang$core$Maybe$Nothing);
+};
+var _user$project$ElmGol$Alive = {ctor: 'Alive'};
+var _user$project$ElmGol$swap = F2(
+	function (n, grid) {
+		var _p5 = A2(_elm_lang$core$Array$get, n, grid);
+		if (_p5.ctor === 'Nothing') {
+			return grid;
+		} else {
+			var _p6 = _p5._0;
+			if (_p6.ctor === 'Dead') {
+				return A3(_elm_lang$core$Array$set, n, _user$project$ElmGol$Alive, grid);
+			} else {
+				return A3(_elm_lang$core$Array$set, n, _user$project$ElmGol$Dead, grid);
+			}
+		}
+	});
+var _user$project$ElmGol$nextStep = F2(
+	function (grid, gs) {
+		var countNeighbours = function (n) {
+			var j = A2(_elm_lang$core$Basics_ops['%'], n, gs);
+			var i = (n / gs) | 0;
+			var upLeft = A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$ElmGol$Dead,
+				A2(
+					_elm_lang$core$Array$get,
+					(A2(_elm_lang$core$Basics_ops['%'], i - 1, gs) * gs) + A2(_elm_lang$core$Basics_ops['%'], j - 1, gs),
+					grid));
+			var up = A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$ElmGol$Dead,
+				A2(
+					_elm_lang$core$Array$get,
+					(A2(_elm_lang$core$Basics_ops['%'], i - 1, gs) * gs) + A2(_elm_lang$core$Basics_ops['%'], j, gs),
+					grid));
+			var upRight = A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$ElmGol$Dead,
+				A2(
+					_elm_lang$core$Array$get,
+					(A2(_elm_lang$core$Basics_ops['%'], i - 1, gs) * gs) + A2(_elm_lang$core$Basics_ops['%'], j + 1, gs),
+					grid));
+			var left = A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$ElmGol$Dead,
+				A2(
+					_elm_lang$core$Array$get,
+					(A2(_elm_lang$core$Basics_ops['%'], i, gs) * gs) + A2(_elm_lang$core$Basics_ops['%'], j - 1, gs),
+					grid));
+			var right = A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$ElmGol$Dead,
+				A2(
+					_elm_lang$core$Array$get,
+					(A2(_elm_lang$core$Basics_ops['%'], i, gs) * gs) + A2(_elm_lang$core$Basics_ops['%'], j + 1, gs),
+					grid));
+			var downLeft = A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$ElmGol$Dead,
+				A2(
+					_elm_lang$core$Array$get,
+					(A2(_elm_lang$core$Basics_ops['%'], i + 1, gs) * gs) + A2(_elm_lang$core$Basics_ops['%'], j - 1, gs),
+					grid));
+			var down = A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$ElmGol$Dead,
+				A2(
+					_elm_lang$core$Array$get,
+					(A2(_elm_lang$core$Basics_ops['%'], i + 1, gs) * gs) + A2(_elm_lang$core$Basics_ops['%'], j, gs),
+					grid));
+			var downRight = A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$ElmGol$Dead,
+				A2(
+					_elm_lang$core$Array$get,
+					(A2(_elm_lang$core$Basics_ops['%'], i + 1, gs) * gs) + A2(_elm_lang$core$Basics_ops['%'], j + 1, gs),
+					grid));
+			var count = A3(
+				_elm_lang$core$List$foldr,
+				F2(
+					function (c, acc) {
+						return _elm_lang$core$Native_Utils.eq(c, _user$project$ElmGol$Alive) ? (acc + 1) : acc;
+					}),
+				0,
+				{
+					ctor: '::',
+					_0: upLeft,
+					_1: {
+						ctor: '::',
+						_0: up,
+						_1: {
+							ctor: '::',
+							_0: upRight,
+							_1: {
+								ctor: '::',
+								_0: left,
+								_1: {
+									ctor: '::',
+									_0: right,
+									_1: {
+										ctor: '::',
+										_0: downLeft,
+										_1: {
+											ctor: '::',
+											_0: down,
+											_1: {
+												ctor: '::',
+												_0: downRight,
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				});
+			return count;
+		};
+		var nextCell = F2(
+			function (n, cell) {
+				var nb = countNeighbours(n);
+				var _p7 = cell;
+				if (_p7.ctor === 'Alive') {
+					return (_elm_lang$core$Native_Utils.eq(nb, 2) || _elm_lang$core$Native_Utils.eq(nb, 3)) ? _user$project$ElmGol$Alive : _user$project$ElmGol$Dead;
+				} else {
+					return _elm_lang$core$Native_Utils.eq(nb, 3) ? _user$project$ElmGol$Alive : _user$project$ElmGol$Dead;
+				}
+			});
+		return A2(_elm_lang$core$Array$indexedMap, nextCell, grid);
+	});
+var _user$project$ElmGol$countNbAlive = A2(
+	_elm_lang$core$Array$foldr,
+	F2(
+		function (c, acc) {
+			return _elm_lang$core$Native_Utils.eq(c, _user$project$ElmGol$Alive) ? (acc + 1) : acc;
+		}),
+	0);
+var _user$project$ElmGol$randomize = F4(
+	function (grid, gs, sd, n) {
+		var newGrid = A2(
+			_elm_lang$core$Array$initialize,
+			gs * gs,
+			_elm_lang$core$Basics$always(_user$project$ElmGol$Dead));
+		var scaledN = _elm_lang$core$Basics$round(
+			_elm_lang$core$Basics$toFloat(gs * gs) * (_elm_lang$core$Basics$toFloat(n) / 100));
+		var indexes = _user$project$ElmGol$makeRange(gs * gs);
+		var randIndexes = A2(
+			_elm_lang$core$List$take,
+			scaledN,
+			A2(_user$project$ElmGol$shuffle, indexes, sd));
+		return A3(
+			_elm_lang$core$List$foldr,
+			F2(
+				function (p, acc) {
+					return A3(_elm_lang$core$Array$set, p, _user$project$ElmGol$Alive, acc);
+				}),
+			newGrid,
+			randIndexes);
+	});
+var _user$project$ElmGol$randomize2 = F4(
+	function (grid, gs, sd, n) {
+		var floatGen = A2(_elm_lang$core$Random$float, 0.0, 1.0);
+		var lifeGen = A2(
+			_elm_lang$core$Random$map,
+			function (b) {
+				return (_elm_lang$core$Native_Utils.cmp(
+					b,
+					_elm_lang$core$Basics$toFloat(n) / 100) < 0) ? _user$project$ElmGol$Alive : _user$project$ElmGol$Dead;
+			},
+			floatGen);
+		var listGen = A2(_elm_lang$core$Random$list, gs * gs, lifeGen);
+		return _elm_lang$core$Array$fromList(
+			_elm_lang$core$Tuple$first(
+				A2(
+					_elm_lang$core$Random$step,
+					listGen,
+					_elm_lang$core$Random$initialSeed(sd))));
+	});
+var _user$project$ElmGol$Random = {ctor: 'Random'};
+var _user$project$ElmGol$SetSeed = function (a) {
+	return {ctor: 'SetSeed', _0: a};
+};
+var _user$project$ElmGol$setSeed = A2(
+	_elm_lang$core$Task$attempt,
+	function (t) {
+		var _p8 = t;
+		if (_p8.ctor === 'Err') {
+			return _user$project$ElmGol$SetSeed(_elm_lang$core$Maybe$Nothing);
+		} else {
+			return _user$project$ElmGol$SetSeed(
+				_elm_lang$core$Maybe$Just(
+					_elm_lang$core$Basics$round(_p8._0)));
+		}
+	},
+	_elm_lang$core$Time$now);
+var _user$project$ElmGol$update = F2(
+	function (msg, model) {
+		var _p9 = msg;
+		switch (_p9.ctor) {
+			case 'Step':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							generation: function (_) {
+								return _.generation;
+							}(model) + 1,
+							grid: A2(
+								_user$project$ElmGol$nextStep,
+								function (_) {
+									return _.grid;
+								}(model),
+								function (_) {
+									return _.gridSize;
+								}(model))
+						}),
+					{ctor: '[]'});
+			case 'StoreSize':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{buffer: _p9._0}),
+					{ctor: '[]'});
+			case 'StoreDens':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{density: _p9._0}),
+					{ctor: '[]'});
+			case 'Tick':
+				return function (_) {
+					return _.running;
+				}(model) ? (_elm_lang$core$Native_Utils.eq(
+					_user$project$ElmGol$countNbAlive(
+						function (_) {
+							return _.grid;
+						}(model)),
+					0) ? A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{running: false}),
+					{ctor: '[]'}) : A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							generation: function (_) {
+								return _.generation;
+							}(model) + 1,
+							grid: A2(
+								_user$project$ElmGol$nextStep,
+								function (_) {
+									return _.grid;
+								}(model),
+								function (_) {
+									return _.gridSize;
+								}(model))
+						}),
+					{ctor: '[]'})) : A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
+			case 'Play':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{running: true}),
+					{ctor: '[]'});
+			case 'Pause':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{running: false}),
+					{ctor: '[]'});
+			case 'Reset':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							running: false,
+							generation: 0,
+							grid: A2(
+								_elm_lang$core$Array$repeat,
+								function (_) {
+									return _.gridSize;
+								}(model) * function (_) {
+									return _.gridSize;
+								}(model),
+								_user$project$ElmGol$Dead)
+						}),
+					{ctor: '[]'});
+			case 'Resize':
+				var _p10 = _elm_lang$core$String$toInt(
+					function (_) {
+						return _.buffer;
+					}(model));
+				if (_p10.ctor === 'Err') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model,
+						{ctor: '[]'});
+				} else {
+					var _p11 = _p10._0;
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								running: false,
+								gridSize: _p11,
+								generation: 0,
+								grid: A2(_elm_lang$core$Array$repeat, _p11 * _p11, _user$project$ElmGol$Dead)
+							}),
+						{ctor: '[]'});
+				}
+			case 'Click':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{
+							grid: function (_) {
+								return _.running;
+							}(model) ? function (_) {
+								return _.grid;
+							}(model) : A2(
+								_user$project$ElmGol$swap,
+								_p9._0,
+								function (_) {
+									return _.grid;
+								}(model))
+						}),
+					{ctor: '[]'});
+			case 'SetSeed':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{initSeed: _p9._0}),
+					{ctor: '[]'});
+			default:
+				var _p12 = function (_) {
+					return _.initSeed;
+				}(model);
+				if (_p12.ctor === 'Nothing') {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								error: _elm_lang$core$Maybe$Just('No random seed')
+							}),
+						{ctor: '[]'});
+				} else {
+					var _p13 = _elm_lang$core$String$toInt(
+						function (_) {
+							return _.density;
+						}(model));
+					if (_p13.ctor === 'Err') {
+						return A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{
+									error: _elm_lang$core$Maybe$Just(_p13._0)
+								}),
+							{ctor: '[]'});
+					} else {
+						return A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{
+									running: false,
+									generation: 0,
+									grid: A4(
+										_user$project$ElmGol$randomize,
+										function (_) {
+											return _.grid;
+										}(model),
+										function (_) {
+											return _.gridSize;
+										}(model),
+										_p12._0,
+										_p13._0)
+								}),
+							{
+								ctor: '::',
+								_0: _user$project$ElmGol$setSeed,
+								_1: {ctor: '[]'}
+							});
+					}
+				}
+		}
+	});
+var _user$project$ElmGol$Click = function (a) {
+	return {ctor: 'Click', _0: a};
+};
+var _user$project$ElmGol$renderGrid = function (model) {
+	var gs = function (_) {
+		return _.gridSize;
+	}(model);
+	var renderCell = F2(
+		function (n, cell) {
+			var col = function () {
+				var _p14 = cell;
+				if (_p14.ctor === 'Dead') {
+					return 'grey';
+				} else {
+					return 'black';
+				}
+			}();
+			var j = A2(_elm_lang$core$Basics_ops['%'], n, gs) * 20;
+			var i = ((n / gs) | 0) * 20;
+			return A2(
+				_elm_lang$svg$Svg$rect,
+				{
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$x(
+						_elm_lang$core$Basics$toString(j)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$y(
+							_elm_lang$core$Basics$toString(i)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$width('20'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$height('21'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$fill(col),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(
+											_user$project$ElmGol$Click(n)),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$svg$Svg_Attributes$class('cell'),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				{ctor: '[]'});
+		});
+	return _elm_lang$core$Array$toList(
+		A2(
+			_elm_lang$core$Array$indexedMap,
+			renderCell,
+			function (_) {
+				return _.grid;
+			}(model)));
+};
+var _user$project$ElmGol$Resize = {ctor: 'Resize'};
+var _user$project$ElmGol$Reset = {ctor: 'Reset'};
+var _user$project$ElmGol$Pause = {ctor: 'Pause'};
+var _user$project$ElmGol$Play = {ctor: 'Play'};
+var _user$project$ElmGol$Tick = function (a) {
+	return {ctor: 'Tick', _0: a};
+};
+var _user$project$ElmGol$subscriptions = function (model) {
+	return A2(_elm_lang$core$Time$every, 0.1 * _elm_lang$core$Time$second, _user$project$ElmGol$Tick);
+};
+var _user$project$ElmGol$StoreDens = function (a) {
+	return {ctor: 'StoreDens', _0: a};
+};
+var _user$project$ElmGol$StoreSize = function (a) {
+	return {ctor: 'StoreSize', _0: a};
+};
+var _user$project$ElmGol$Step = {ctor: 'Step'};
+var _user$project$ElmGol$view = function (model) {
+	var sizeViewPort = A2(
+		_elm_lang$core$Basics_ops['++'],
+		_elm_lang$core$Basics$toString(
+			function (_) {
+				return _.gridSize;
+			}(model) * 30),
+		'px');
+	var sizeCoordSys = _elm_lang$core$Basics$toString(
+		function (_) {
+			return _.gridSize;
+		}(model) * 20);
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('main'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h1,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('The Game of Life'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('grid size: '),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$input,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$type_('form'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$placeholder(
+									_elm_lang$core$Basics$toString(
+										function (_) {
+											return _.gridSize;
+										}(model))),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$style(
+										{
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'width', _1: '30px'},
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onInput(_user$project$ElmGol$StoreSize),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						},
+						{ctor: '[]'}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$button,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$type_('button'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_user$project$ElmGol$Resize),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Resize'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$br,
+								{ctor: '[]'},
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$br,
+									{ctor: '[]'},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('density: '),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$input,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$type_('range'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$min('0'),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$max('100'),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$value(
+																function (_) {
+																	return _.density;
+																}(model)),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$html$Html_Events$onInput(_user$project$ElmGol$StoreDens),
+																_1: {
+																	ctor: '::',
+																	_0: _elm_lang$html$Html_Attributes$style(
+																		{
+																			ctor: '::',
+																			_0: {ctor: '_Tuple2', _0: 'width', _1: '100px'},
+																			_1: {
+																				ctor: '::',
+																				_0: {ctor: '_Tuple2', _0: 'vertical-align', _1: 'bottom'},
+																				_1: {
+																					ctor: '::',
+																					_0: {ctor: '_Tuple2', _0: 'outline', _1: 'none'},
+																					_1: {ctor: '[]'}
+																				}
+																			}
+																		}),
+																	_1: {ctor: '[]'}
+																}
+															}
+														}
+													}
+												}
+											},
+											{ctor: '[]'}),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$span,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$style(
+														{
+															ctor: '::',
+															_0: {ctor: '_Tuple2', _0: 'font-family', _1: 'Consolas,Monaco,Lucida Console,Liberation Mono\n                       ,DejaVu Sans Mono,Bitstream Vera Sans Mono\n                       ,Courier New, monospace'},
+															_1: {
+																ctor: '::',
+																_0: {ctor: '_Tuple2', _0: 'white-space', _1: 'pre'},
+																_1: {ctor: '[]'}
+															}
+														}),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text(
+														A2(
+															_elm_lang$core$Basics_ops['++'],
+															A3(
+																_elm_lang$core$String$padLeft,
+																3,
+																_elm_lang$core$Native_Utils.chr(' '),
+																function (_) {
+																	return _.density;
+																}(model)),
+															'% ')),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$button,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$type_('button'),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Events$onClick(_user$project$ElmGol$Random),
+															_1: {ctor: '[]'}
+														}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('Randomize'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$br,
+														{ctor: '[]'},
+														{ctor: '[]'}),
+													_1: {
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$br,
+															{ctor: '[]'},
+															{ctor: '[]'}),
+														_1: {
+															ctor: '::',
+															_0: A2(
+																_elm_lang$svg$Svg$svg,
+																{
+																	ctor: '::',
+																	_0: _elm_lang$svg$Svg_Attributes$viewBox(
+																		A2(
+																			_elm_lang$core$Basics_ops['++'],
+																			'0 0 ',
+																			A2(
+																				_elm_lang$core$Basics_ops['++'],
+																				sizeCoordSys,
+																				A2(_elm_lang$core$Basics_ops['++'], ' ', sizeCoordSys)))),
+																	_1: {
+																		ctor: '::',
+																		_0: _elm_lang$svg$Svg_Attributes$width('400px'),
+																		_1: {ctor: '[]'}
+																	}
+																},
+																A2(
+																	_elm_lang$core$Basics_ops['++'],
+																	_user$project$ElmGol$renderGrid(model),
+																	{ctor: '[]'})),
+															_1: {
+																ctor: '::',
+																_0: A2(
+																	_elm_lang$html$Html$br,
+																	{ctor: '[]'},
+																	{ctor: '[]'}),
+																_1: {
+																	ctor: '::',
+																	_0: A2(
+																		_elm_lang$html$Html$button,
+																		{
+																			ctor: '::',
+																			_0: _elm_lang$html$Html_Events$onClick(_user$project$ElmGol$Play),
+																			_1: {ctor: '[]'}
+																		},
+																		{
+																			ctor: '::',
+																			_0: _elm_lang$html$Html$text('Play'),
+																			_1: {ctor: '[]'}
+																		}),
+																	_1: {
+																		ctor: '::',
+																		_0: A2(
+																			_elm_lang$html$Html$button,
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html_Events$onClick(_user$project$ElmGol$Pause),
+																				_1: {ctor: '[]'}
+																			},
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html$text('Pause'),
+																				_1: {ctor: '[]'}
+																			}),
+																		_1: {
+																			ctor: '::',
+																			_0: A2(
+																				_elm_lang$html$Html$button,
+																				{
+																					ctor: '::',
+																					_0: _elm_lang$html$Html_Events$onClick(_user$project$ElmGol$Reset),
+																					_1: {ctor: '[]'}
+																				},
+																				{
+																					ctor: '::',
+																					_0: _elm_lang$html$Html$text('Reset'),
+																					_1: {ctor: '[]'}
+																				}),
+																			_1: {
+																				ctor: '::',
+																				_0: A2(
+																					_elm_lang$html$Html$button,
+																					{
+																						ctor: '::',
+																						_0: _elm_lang$html$Html_Events$onClick(_user$project$ElmGol$Step),
+																						_1: {ctor: '[]'}
+																					},
+																					{
+																						ctor: '::',
+																						_0: _elm_lang$html$Html$text('next step'),
+																						_1: {ctor: '[]'}
+																					}),
+																				_1: {
+																					ctor: '::',
+																					_0: A2(
+																						_elm_lang$html$Html$br,
+																						{ctor: '[]'},
+																						{ctor: '[]'}),
+																					_1: {
+																						ctor: '::',
+																						_0: _elm_lang$html$Html$text(
+																							A2(
+																								_elm_lang$core$Basics_ops['++'],
+																								'Géneration n° ',
+																								_elm_lang$core$Basics$toString(
+																									function (_) {
+																										return _.generation;
+																									}(model)))),
+																						_1: {
+																							ctor: '::',
+																							_0: function () {
+																								var _p15 = function (_) {
+																									return _.error;
+																								}(model);
+																								if (_p15.ctor === 'Nothing') {
+																									return _elm_lang$html$Html$text('');
+																								} else {
+																									return A2(
+																										_elm_lang$html$Html$p,
+																										{ctor: '[]'},
+																										{
+																											ctor: '::',
+																											_0: _elm_lang$html$Html$text(
+																												A2(_elm_lang$core$Basics_ops['++'], 'Error: ', _p15._0)),
+																											_1: {ctor: '[]'}
+																										});
+																								}
+																							}(),
+																							_1: {
+																								ctor: '::',
+																								_0: _user$project$ElmGol$style_('.cell:hover {fill: #8FBC8F; } input[type=range]{\n                border: 1px solid white;\n                outline: 2px solid white;\n                outline-offset: -1px;\n                }\n                input[type=\'range\']::-moz-focus-outer { border: 0; }'),
+																								_1: {ctor: '[]'}
+																							}
+																						}
+																					}
+																				}
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+};
+var _user$project$ElmGol$main = _elm_lang$html$Html$program(
+	{
+		init: {
+			ctor: '_Tuple2',
+			_0: _user$project$ElmGol$init(10),
+			_1: _user$project$ElmGol$setSeed
+		},
+		update: _user$project$ElmGol$update,
+		view: _user$project$ElmGol$view,
+		subscriptions: _user$project$ElmGol$subscriptions
+	})();
